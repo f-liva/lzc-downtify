@@ -1,0 +1,17 @@
+params:
+    - id: music_dir
+      type: string
+      name: "Cartella della musica"
+      description: "Percorso assoluto sotto /lzcapp/document dove salvare i brani scaricati, es. '/lzcapp/document/mario/Music/Downtify'. Lascia vuoto per usare Music/Downtify nella cartella Documenti del primo utente."
+      optional: true
+      default_value: ""
+
+locales:
+    en:
+        music_dir:
+            name: "Music folder"
+            description: "Absolute path under /lzcapp/document where downloaded tracks are saved, e.g. '/lzcapp/document/john/Music/Downtify'. Leave empty to use Music/Downtify in the first user's Documents folder."
+    zh:
+        music_dir:
+            name: "音乐文件夹"
+            description: "下载的歌曲保存位置，须为 /lzcapp/document 下的绝对路径，例如 /lzcapp/document/john/Music/Downtify。留空则使用第一个用户文档文件夹中的 Music/Downtify。"

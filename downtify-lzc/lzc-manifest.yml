@@ -1,0 +1,47 @@
+application:
+  subdomain: downtify
+  # Downloads and playlist monitor syncs keep running with no tab open.
+  background_task: true
+  # Required for the box to generate LAZYCAT_AUTH_OIDC_* for this app.
+  oidc_redirect_path: /api/auth/oidc/callback
+  routes:
+    - /=http://downtify.cloud.lazycat.app.downtify.lzcapp:8000
+
+services:
+  downtify:
+    image: embed:downtify
+    binds:
+      # Accounts, settings, YouTube cookies, caches.
+      - /lzcapp/var/data:/data
+      - /lzcapp/document:/lzcapp/document
+    environment:
+      - DOWNTIFY_PORT=8000
+      - TZ=Europe/Rome
+      # Symlink created by setup_script, pointing at the user's music folder.
+      - DOWNLOAD_DIR=/music
+      # Sign-in through the box account (OIDC), no separate password.
+      - DOWNTIFY_OIDC_ISSUER=https://${LAZYCAT_BOX_DOMAIN}/sys/oauth
+      - DOWNTIFY_OIDC_CLIENT_ID=${LAZYCAT_AUTH_OIDC_CLIENT_ID}
+      - DOWNTIFY_OIDC_CLIENT_SECRET=${LAZYCAT_AUTH_OIDC_CLIENT_SECRET}
+      # Behind the box gateway the derived URI would be http://, set it explicitly.
+      - DOWNTIFY_OIDC_REDIRECT_URI=https://${LAZYCAT_APP_DOMAIN}/api/auth/oidc/callback
+      - DOWNTIFY_OIDC_SCOPES=openid profile email groups
+      # Box administrators become Downtify admins.
+      - DOWNTIFY_OIDC_ADMIN_GROUPS=ADMIN
+      - DOWNTIFY_DISABLE_LOCAL_LOGIN=true
+      # mDNS never leaves the container network here.
+      - DOWNTIFY_DISCOVERY=false
+    setup_script: |-
+      # /downloads is a VOLUME in the image and cannot be replaced, so the app
+      # writes to /music, a symlink into the user's Documents.
+      R='{{.U.music_dir}}'
+      case "$R" in
+        /lzcapp/document/*) ;;
+        *) R=$(ls -d /lzcapp/document/*/ 2>/dev/null | head -n1)Music/Downtify ;;
+      esac
+      mkdir -p "$R"
+      ln -sfn "$R" /music
+
+ext_config:
+  # Tracks land in the user's Documents, where music players can read them.
+  enable_document_access: true

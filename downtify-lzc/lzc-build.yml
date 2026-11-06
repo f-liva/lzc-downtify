@@ -1,0 +1,9 @@
+pkgout: ./
+icon: icon.png
+
+images:
+  # Passthrough of the upstream image mirrored on registry.lazycat.cloud:
+  # metadata-only embed, layers are pulled at install time.
+  downtify:
+    dockerfile: ../docker/embed/downtify/Dockerfile
+    upstream-match: registry.lazycat.cloud
